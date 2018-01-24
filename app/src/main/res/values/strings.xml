@@ -1,0 +1,7 @@
+<resources>
+    <string name="app_name">Native Song Listing</string>
+    <string name="menu_search">Search</string>
+    <string name="artist">Artist : </string>
+    <string name="genre">Genre :</string>
+    <string name="price">Price :</string>
+</resources>
