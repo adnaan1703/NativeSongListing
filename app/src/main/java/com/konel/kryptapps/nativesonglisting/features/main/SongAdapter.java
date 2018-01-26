@@ -1,6 +1,7 @@
 package com.konel.kryptapps.nativesonglisting.features.main;
 
 import android.graphics.Bitmap;
+import android.graphics.drawable.BitmapDrawable;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v7.widget.LinearLayoutManager;
@@ -11,10 +12,9 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.konel.kryptapps.nativesonglisting.NSLImageDownloader.ImageLoader;
 import com.konel.kryptapps.nativesonglisting.R;
-import com.konel.kryptapps.nativesonglisting.data_store.SongsDataStore;
 import com.konel.kryptapps.nativesonglisting.features.entity.SongItem;
-import com.konel.kryptapps.nativesonglisting.repository.ImageDownloader;
 
 import java.util.List;
 import java.util.Locale;
@@ -33,15 +33,15 @@ class SongAdapter extends RecyclerView.Adapter<SongAdapter.ViewHolder> {
     @NonNull
     private SongSelectListener listener;
     @NonNull
-    private SongsDataStore.DataStoreCallbacks dataStoreCallbacks;
+    private ImageLoader imageLoader;
     private boolean stopPagination;
 
     SongAdapter(@NonNull List<SongItem> songItems,
                 @NonNull SongSelectListener listener,
-                @NonNull SongsDataStore.DataStoreCallbacks dataStoreCallbacks) {
+                @NonNull ImageLoader imageLoader) {
         this.songItems = songItems;
         this.listener = listener;
-        this.dataStoreCallbacks = dataStoreCallbacks;
+        this.imageLoader = imageLoader;
         this.stopPagination = false;
     }
 
@@ -98,8 +98,7 @@ class SongAdapter extends RecyclerView.Adapter<SongAdapter.ViewHolder> {
         this.stopPagination = true;
     }
 
-
-    class ViewHolder extends RecyclerView.ViewHolder {
+    class ViewHolder extends RecyclerView.ViewHolder implements ImageLoader.ImageLoaderCallback {
 
         @NonNull
         private ImageView ivSong;
@@ -133,6 +132,7 @@ class SongAdapter extends RecyclerView.Adapter<SongAdapter.ViewHolder> {
 
         void updateUI(@NonNull final SongItem songItem) {
             this.songItem = songItem;
+            ivSong.setImageDrawable(null);
             tvName.setText(songItem.getTrackName());
             tvGenre.setText(songItem.getPrimaryGenreName());
             tvArtist.setText(songItem.getArtistName());
@@ -141,20 +141,20 @@ class SongAdapter extends RecyclerView.Adapter<SongAdapter.ViewHolder> {
                     "%s %.2f",
                     songItem.getCurrency(), songItem.getTrackPrice()
             ));
-            if (songItem.getBitmap() != null)
-                ivSong.setImageBitmap(songItem.getBitmap());
-            else {
-                new ImageDownloader(
-                        ivSong.getDrawable().getIntrinsicWidth(),
-                        ivSong.getDrawable().getIntrinsicHeight(),
-                        new ImageDownloader.BitmapLoadedCallBack() {
-                            @Override
-                            public void onBitmapLoaded(@Nullable Bitmap bitmap) {
-                                songItem.setBitmap(bitmap);
-                                ivSong.setImageBitmap(bitmap);
-                            }
-                        }).execute(songItem.getArtWorkUrl());
-            }
+            imageLoader.DisplayImage(songItem.getArtWorkUrl(), this);
+        }
+
+        @Override
+        public void onPhotoLoaded(@NonNull String url, @NonNull Bitmap bitmap) {
+            if (getAdapterPosition() >= 0
+                    && getAdapterPosition() < songItems.size()
+                    && songItems.get(getAdapterPosition()).getArtWorkUrl().equalsIgnoreCase(url))
+                if (ivSong.getDrawable() != null
+                        && ivSong.getDrawable() instanceof BitmapDrawable
+                        && ((BitmapDrawable) ivSong.getDrawable()).getBitmap().equals(bitmap)) {
+                    return;
+                }
+            ivSong.setImageBitmap(bitmap);
         }
     }
 

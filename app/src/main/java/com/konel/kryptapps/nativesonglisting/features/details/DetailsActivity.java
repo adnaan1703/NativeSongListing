@@ -3,18 +3,17 @@ package com.konel.kryptapps.nativesonglisting.features.details;
 import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.konel.kryptapps.nativesonglisting.NSLImageDownloader.ImageLoader;
 import com.konel.kryptapps.nativesonglisting.NavigationUtil;
 import com.konel.kryptapps.nativesonglisting.R;
-import com.konel.kryptapps.nativesonglisting.repository.ImageDownloader;
 
 import java.util.Locale;
 
-public class DetailsActivity extends AppCompatActivity {
+public class DetailsActivity extends AppCompatActivity implements ImageLoader.ImageLoaderCallback {
 
     private ImageView ivSong;
     private TextView tvName;
@@ -45,15 +44,12 @@ public class DetailsActivity extends AppCompatActivity {
                 "%s %.2f",
                 model.getCurrency(), model.getTrackPrice()
         ));
-        new ImageDownloader(
-                ivSong.getDrawable().getIntrinsicWidth(),
-                ivSong.getDrawable().getIntrinsicHeight(),
-                new ImageDownloader.BitmapLoadedCallBack() {
-                    @Override
-                    public void onBitmapLoaded(@Nullable Bitmap bitmap) {
-                        ivSong.setImageBitmap(bitmap);
-                    }
-                }
-        ).execute(model.getArtWorkUrl());
+        ImageLoader imageLoader = new ImageLoader();
+        imageLoader.DisplayImage(model.getArtWorkUrl(), this);
+    }
+
+    @Override
+    public void onPhotoLoaded(@NonNull String url, @NonNull Bitmap bitmap) {
+        ivSong.setImageBitmap(bitmap);
     }
 }

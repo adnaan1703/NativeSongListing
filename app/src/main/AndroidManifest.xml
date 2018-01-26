@@ -3,6 +3,7 @@
     package="com.konel.kryptapps.nativesonglisting">
 
     <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
 
     <application
         android:allowBackup="true"
@@ -11,14 +12,18 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".features.main.MainActivity">
+        <activity
+            android:name=".features.main.MainActivity"
+            android:screenOrientation="portrait">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".features.details.DetailsActivity"></activity>
+        <activity
+            android:name=".features.details.DetailsActivity"
+            android:screenOrientation="portrait" />
     </application>
 
 </manifest>

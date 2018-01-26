@@ -18,8 +18,8 @@
             android:layout_width="48dp"
             android:layout_height="48dp"
             android:layout_centerVertical="true"
+            android:background="@drawable/image"
             android:scaleType="centerCrop"
-            android:src="@drawable/image"
             tools:ignore="ContentDescription" />
 
         <TextView

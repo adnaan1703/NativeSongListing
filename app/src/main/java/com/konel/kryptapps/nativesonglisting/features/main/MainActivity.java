@@ -14,6 +14,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageView;
 
+import com.konel.kryptapps.nativesonglisting.NSLImageDownloader.ImageLoader;
 import com.konel.kryptapps.nativesonglisting.NavigationUtil;
 import com.konel.kryptapps.nativesonglisting.R;
 import com.konel.kryptapps.nativesonglisting.features.entity.SongItem;
@@ -26,6 +27,8 @@ public class MainActivity extends AppCompatActivity implements MainContract.View
     private ImageView ivEmptyState;
     private RecyclerView rvList;
     private MainContract.Presenter presenter;
+    @Nullable
+    private ImageLoader imageLoader;
     @Nullable
     private SongAdapter adapter;
 
@@ -46,6 +49,15 @@ public class MainActivity extends AppCompatActivity implements MainContract.View
     protected void onStart() {
         super.onStart();
         presenter.onStart();
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        if (imageLoader != null) {
+            imageLoader.clearCache();
+            imageLoader = null;
+        }
     }
 
     @Override
@@ -74,8 +86,10 @@ public class MainActivity extends AppCompatActivity implements MainContract.View
     public void showSongs(@NonNull List<SongItem> songItems) {
         ivEmptyState.setVisibility(View.GONE);
         rvList.setVisibility(View.VISIBLE);
+        if (imageLoader == null)
+            imageLoader = new ImageLoader();
         if (adapter == null) {
-            adapter = new SongAdapter(songItems, presenter, presenter);
+            adapter = new SongAdapter(songItems, presenter, imageLoader);
             rvList.setAdapter(adapter);
         } else {
             adapter.updateList(songItems);
